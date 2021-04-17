@@ -32,10 +32,15 @@ int lxsh_exit(std::vector<std::string> args) {
 }
 
 int lxsh_cd(std::vector<std::string> args) {
-    if (args.size() <= 1)
+    if (args.size() <= 1) {
         printf("lxsh: 'cd' expects an argument\n"); // TODO: this shouldn't actually be the case. If no directory is given, it should default to the users home
-    else if (args.size() > 2)
+    } else if (args.size() > 2) {
         printf("lxsh: 'cd' only expects one argument\n");
+    } else {
+        if (chdir(args[1].c_str()) != 0) {
+            printf("lxsh: 'cd' didn't find the given directory\n");
+        }
+    }
     return 1;
 }
 
