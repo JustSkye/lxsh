@@ -5,6 +5,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <unistd.h>
 
 #include "prompt/prompt.h"
 #include "builtins/builtins.h"
@@ -52,6 +53,9 @@ std::vector<std::string> split_line(std::string const& line) {
     std::stringstream ln(line);
     std::string arg;
     while (ln >> arg) {
+        if (arg == "~") {
+            arg = getenv("HOME");
+        }
         args.push_back(arg);
     }
 
