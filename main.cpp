@@ -59,6 +59,10 @@ std::vector<std::string> split_line(std::string const& line) {
 }
 
 int parse_and_execute(std::vector<std::string> args) {
+    if (args.empty()) {
+        return 1;
+    }
+
     /* This looks weird and feels wrong, but it works */
     for (u_int i = 0; i < (sizeof(*builtins) / sizeof(std::string*) + 1); i++) {
         if (strcmp(args[0].c_str(), builtins[i].c_str()) == 0) {
@@ -101,7 +105,6 @@ int main(int argc, char **argv)
             printf("lxsh debug: args[0] = '%s'\n", args[0].c_str());
         } else {
             printf("lxsh debug: input was empty\n");
-            continue;
         }
         #endif
 
