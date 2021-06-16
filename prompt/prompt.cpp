@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <unistd.h>
 
 void print_ps1() {
-    printf("> ");
+    printf("[%s] > ", get_current_dir_name());
 }
 
 void print_ps2() {
