@@ -1,11 +1,5 @@
 #include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <algorithm>
 #include <sstream>
-#include <map>
-#include <vector>
-#include <unistd.h>
 
 #include "prompt/prompt.h"
 #include "builtins/builtins.h"
@@ -18,7 +12,7 @@ std::map<std::string, std::string> aliases;
 
 std::string read_line();
 std::vector<std::string> split_line(std::string const& line);
-int parse_and_execute(std::vector<std::string> args);
+int parse_and_execute(std::vector<std::string> args, lxsh::executor& executor, lxsh::builtins& builtins);
 
 std::string read_line() {
     std::string line;
@@ -32,6 +26,7 @@ std::string read_line() {
 }
 
 std::vector<std::string> split_line(std::string const& line) {
+    /* arg_count stuff, not actually needed
     u_int arg_count;
     if (line.empty() || line.back() == ' ')
         arg_count = 0;
@@ -47,6 +42,7 @@ std::vector<std::string> split_line(std::string const& line) {
     #ifdef LXSH_DEBUG
 	printf("lxsh debug: arg_count = '%u'\n", arg_count);
     #endif
+    */
 
     std::vector<std::string> args;
 
@@ -62,30 +58,30 @@ std::vector<std::string> split_line(std::string const& line) {
     return args;
 }
 
-int parse_and_execute(std::vector<std::string> args) {
+int parse_and_execute(std::vector<std::string> args, lxsh::executor& executor, lxsh::builtins& builtins) {
     if (args.empty()) {
         return 1;
     }
-
-    /* This looks weird and feels wrong, but it works */
-    for (u_int i = 0; i < (sizeof(*builtins) / sizeof(std::string*) + 1); i++) {
-        if (strcmp(args[0].c_str(), builtins[i].c_str()) == 0) {
-            #ifdef LXSH_DEBUG
-            printf("lxsh debug: builtin function detected\n");
-            #endif
-            return (*builtins_f[i]) (args);
-        }
+    
+    if (builtins.check_if_builtin(args[0])) {
+        #ifdef LXSH_DEBUG
+        printf("lxsh debug: builtin command detected\n");
+        #endif
+        return builtins.execute_builtin(args);
     }
 
     #ifdef LXSH_DEBUG
     printf("lxsh debug: non-builtin command detected\n");
     #endif
 
-    return execute_command(args);
+    return executor.execute_command(args);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+    lxsh::prompt prompt;
+    lxsh::executor executor;
+    lxsh::builtins builtins;
+
     std::string line;
     std::vector<std::string> args;
     int status = 1;
@@ -96,7 +92,7 @@ int main(int argc, char **argv)
 
     do {
         /* Print PS1 */
-        print_ps1();
+        prompt.print_ps1();
 
         /* Read user input, the 'line' */
         line = read_line();
@@ -113,7 +109,7 @@ int main(int argc, char **argv)
         #endif
 
         /* Give 'args' to the parser, which will give them to the executor */
-        status = parse_and_execute(args);
+        status = parse_and_execute(args, executor, builtins);
 
         /* Clear 'line' */
         line = "";
@@ -124,3 +120,4 @@ int main(int argc, char **argv)
 
 	return EXIT_SUCCESS;
 }
+
