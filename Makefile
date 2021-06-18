@@ -3,7 +3,7 @@ PREFIX = /usr/local
 CC = g++
 CFLAGS = -Wall
 
-OBJS = main.o prompt/prompt.o builtins/builtins.o executor/executor.o logger/logger.o
+OBJS = main.o prompt/prompt.o builtins/builtins.o executor/executor.o logger/logger.o history/history.o
 
 TARGET = lxsh
 

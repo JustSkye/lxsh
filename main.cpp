@@ -2,6 +2,8 @@
 #include <sstream>
 
 #include "logger/logger.h"
+#include "history/history.h"
+
 #include "prompt/prompt.h"
 #include "builtins/builtins.h"
 #include "executor/executor.h"
@@ -11,13 +13,15 @@
 // TODO: Start alias system
 std::map<std::string, std::string> aliases;
 
-std::string read_line();
+std::string read_line(lxsh::history& history);
 std::vector<std::string> split_line(std::string const& line);
 int parse_and_execute(std::vector<std::string> args, lxsh::executor& executor, lxsh::builtins& builtins);
 
-std::string read_line() {
+std::string read_line(lxsh::history& history) {
     std::string line;
     getline(std::cin, line);
+
+    history.save_line_to_session_history(line);
 
     return line;
 }
@@ -51,6 +55,8 @@ int parse_and_execute(std::vector<std::string> args, lxsh::executor& executor, l
 
 int main(int argc, char **argv) {
     lxsh::logger logger;
+    lxsh::history history(logger);
+
     lxsh::prompt prompt;
     lxsh::executor executor(logger);
     lxsh::builtins builtins(logger);
@@ -66,7 +72,7 @@ int main(int argc, char **argv) {
         prompt.print_ps1();
 
         /* Read user input, the 'line' */
-        line = read_line();
+        line = read_line(history);
         logger.log(logger.debug, "line = '" + line + "'");
 
         /* Assign the values that split_line() returns to 'args' */
@@ -81,6 +87,10 @@ int main(int argc, char **argv) {
         /* Clear 'args' */
         args.clear();
     } while (status);
+    
+    logger.log(logger.debug, "session history length = '" + std::to_string(history.get_session_history_length()) + "'");
+
+    history.save_session_history_to_file();
 
 	return EXIT_SUCCESS;
 }
