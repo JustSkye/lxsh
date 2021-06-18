@@ -4,11 +4,13 @@
 #include <string>
 #include <vector>
 
+#include "../logger/logger.h"
+
 namespace lxsh {
 
     class builtins {
     public:
-        builtins();
+        builtins(lxsh::logger logger);
         ~builtins();
 
         bool check_if_builtin(std::string command);
@@ -20,6 +22,8 @@ namespace lxsh {
         static int lxsh_pwd(std::vector<std::string> args);
     
     private:
+        lxsh::logger logger;
+
         typedef int (*_builtin_pointer) (std::vector<std::string>);
         std::map<std::string, _builtin_pointer> _builtins;
     };

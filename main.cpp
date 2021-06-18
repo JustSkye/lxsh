@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "logger/logger.h"
 #include "prompt/prompt.h"
 #include "builtins/builtins.h"
 #include "executor/executor.h"
@@ -18,32 +19,10 @@ std::string read_line() {
     std::string line;
     getline(std::cin, line);
 
-    #ifdef LXSH_DEBUG
-	printf("lxsh debug: line = '%s'\n", line.c_str());
-    #endif
-
     return line;
 }
 
 std::vector<std::string> split_line(std::string const& line) {
-    /* arg_count stuff, not actually needed
-    u_int arg_count;
-    if (line.empty() || line.back() == ' ')
-        arg_count = 0;
-    else
-        arg_count = 1;
-
-    for (u_int i = line.size(); i > 0; --i) {
-        if (line[i] == ' ' && line[i - 1] != ' ') {
-            ++arg_count;
-        }
-    }
-
-    #ifdef LXSH_DEBUG
-	printf("lxsh debug: arg_count = '%u'\n", arg_count);
-    #endif
-    */
-
     std::vector<std::string> args;
 
     std::stringstream ln(line);
@@ -64,31 +43,23 @@ int parse_and_execute(std::vector<std::string> args, lxsh::executor& executor, l
     }
     
     if (builtins.check_if_builtin(args[0])) {
-        #ifdef LXSH_DEBUG
-        printf("lxsh debug: builtin command detected\n");
-        #endif
         return builtins.execute_builtin(args);
     }
-
-    #ifdef LXSH_DEBUG
-    printf("lxsh debug: non-builtin command detected\n");
-    #endif
 
     return executor.execute_command(args);
 }
 
 int main(int argc, char **argv) {
+    lxsh::logger logger;
     lxsh::prompt prompt;
-    lxsh::executor executor;
-    lxsh::builtins builtins;
+    lxsh::executor executor(logger);
+    lxsh::builtins builtins(logger);
 
     std::string line;
     std::vector<std::string> args;
     int status = 1;
-
-    #ifdef LXSH_DEBUG
-	printf("lxsh debug: initialized\n");
-    #endif
+    
+    logger.log(logger.debug, "initialized");
 
     do {
         /* Print PS1 */
@@ -96,17 +67,10 @@ int main(int argc, char **argv) {
 
         /* Read user input, the 'line' */
         line = read_line();
+        logger.log(logger.debug, "line = '" + line + "'");
 
         /* Assign the values that split_line() returns to 'args' */
         split_line(line).swap(args);
-
-        #ifdef LXSH_DEBUG
-        if (!args.empty()) {
-            printf("lxsh debug: args[0] = '%s'\n", args[0].c_str());
-        } else {
-            printf("lxsh debug: input was empty\n");
-        }
-        #endif
 
         /* Give 'args' to the parser, which will give them to the executor */
         status = parse_and_execute(args, executor, builtins);

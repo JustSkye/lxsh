@@ -4,7 +4,9 @@
 #include "builtins.h"
 
 namespace lxsh {
-    builtins::builtins() {
+    builtins::builtins(lxsh::logger logger) {
+        this->logger = logger;
+
         _builtins["help"] = lxsh_help;
         _builtins["exit"] = lxsh_exit;
         _builtins["cd"] = lxsh_cd;
@@ -23,6 +25,7 @@ namespace lxsh {
     }
 
     int builtins::execute_builtin(std::vector<std::string> args) {
+        logger.log(logger.debug, "builtin command detected");
         return _builtins[args[0]](args);
     }
 

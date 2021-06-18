@@ -7,7 +7,10 @@
 #include "../config.h"
 
 namespace lxsh {
-    executor::executor() { }
+    executor::executor(lxsh::logger logger) { 
+        this->logger = logger;
+    }
+
     executor::~executor() { }
 
     std::string executor::search_path(std::string program_name) {
@@ -63,15 +66,14 @@ namespace lxsh {
     }
 
     int executor::execute_command(std::vector<std::string> args) {
+        logger.log(logger.debug, "non-builtin command detected");
         std::string program_path = search_path(args[0]);
 
         if (program_path.empty()) {
             printf("lxsh: could not find '%s'\n", args[0].c_str());
             return 1;
         } else {
-            #ifdef LXSH_DEBUG
-            printf("lxsh debug: progam path = '%s'\n", program_path.c_str());
-            #endif
+            logger.log(logger.debug, "program path = '" + program_path + "'");
 
             const char **argv = new const char* [args.size() + 1];
             for (u_int i = 0; i < args.size() + 1; ++i)
@@ -82,10 +84,10 @@ namespace lxsh {
             pid_t pid = fork();
             if (pid == 0) {
                 if (execvp(args[0].c_str(), (char **)argv) == -1) {
-                    printf("lxsh: something broke\n");
+                    logger.log(logger.error, "execution of the program failed");
                 }
             } else if (pid < 0) {
-                printf("lxsh: fork failed\n");
+                logger.log(logger.error, "fork failed");
             } else {
                 do {
                     waitpid(pid, &status, WUNTRACED);
