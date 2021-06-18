@@ -4,7 +4,6 @@
 #include <unistd.h>
 
 #include "executor.h"
-#include "../config.h"
 
 namespace lxsh {
     executor::executor(lxsh::logger logger) { 
