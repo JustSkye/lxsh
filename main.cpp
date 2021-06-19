@@ -88,7 +88,8 @@ int main(int argc, char **argv) {
         args.clear();
     } while (status);
     
-    logger.log(logger.debug, "session history length = '" + std::to_string(history.get_session_history_length()) + "'");
+    int temp1 = history.get_session_history_length();
+    int temp2 = history.get_history_length();
 
     history.save_session_history_to_file();
 
