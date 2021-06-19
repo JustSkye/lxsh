@@ -1,7 +1,7 @@
 PREFIX = /usr/local
 
 CC = g++
-CFLAGS = -Wall
+CFLAGS = -Wall -std=c++11 
 
 OBJS = main.o prompt/prompt.o builtins/builtins.o executor/executor.o logger/logger.o history/history.o
 
