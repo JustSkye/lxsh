@@ -1,6 +1,3 @@
-# lxsh
-lxsh (LuX SHell), is my own shell, that I will be working on in my free time.
+# lxsh-archived (22.7.2021)
 
-## Notes
-* I started this project just to learn new things. This is not meant to be "daily use" ready, at least not anytime soon.
-
+Decided the structure was bad all around, I may start a new shell some day.
